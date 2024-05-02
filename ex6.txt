@@ -1,0 +1,33 @@
+sudo yum install -y java-1.8.0-openjdk python-setuptools mysql-connector-java maven tomcat
+
+sudo yum install -y mariadb mariadb-server
+
+sudo systemctl start mariadb
+sudo systemctl enable MariaDB
+
+sudo mysql_secure_installation
+
+git clone https://github.com/apache/cloudstack.git
+
+cd cloudstack
+
+mvn -P developer -Dsimulator -DskipTests clean install
+
+sudo mv ./client/target/cloud-client-ui-4.15.0.0-SNAPSHOT.war 
+/var/lib/tomcat/webapps/client.war
+sudo mv ./server/target/cloudstack-management-4.15.0.0-SNAPSHOT.war 
+/var/lib/tomcat/webapps/client.war
+
+sudo ./create-schema.sh
+sudo ./cloudstack-awsapi.sql
+sudo ./cloudstack-setup-databases cloud:password@localhost --deploy-as=root
+
+cd /etc/cloudstack/management/
+sudo cp -p db.properties.template db.properties
+
+sudo vi db.properties
+
+sudo systemctl restart tomcat
+
+
+
